@@ -1,0 +1,6 @@
+---
+  hosts: decidim
+  become: true
+  name: 'Install Decidim from BCN repository'
+
+  tasks:
