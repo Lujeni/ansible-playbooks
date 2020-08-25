@@ -1,0 +1,20 @@
+---
+- hosts: all
+  become: true
+  name: 'Basic configuration Ubuntu 18'
+
+  tasks:
+  
+    - name: 'Update apt'
+      apt: 
+        update_cache: yes
+        upgrade: yes
+
+    - name: 'Disable password authentication for root'
+      lineinfile:
+        path: /etc/ssh/sshd_config
+        state: present
+        regexp: '^#?PermitRootLogin'
+        line: 'PermitRootLogin no'
+
+  

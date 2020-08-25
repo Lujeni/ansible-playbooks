@@ -1,5 +1,5 @@
 ---
-  hosts: webservers
+- hosts: webservers
   become: true
   name: 'Install and configure Nginx'
 
@@ -11,7 +11,6 @@
 
     - name: 'Install last version of Nginx'
       apt: name=nginx state=latest
-      become: yes
 
     - name: 'Start Nginx service'
       service:

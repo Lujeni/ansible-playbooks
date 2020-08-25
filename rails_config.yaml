@@ -1,6 +1,10 @@
 ---
-  hosts: rails
-  become: true
+- hosts: rails
+  roles: 
+    - suzuki-shunsuke.rbenv-module
+  vars:
+    - rbenv_root: /home/{{ ansible_user }}/.rbenv
+    - user: "{{ ansible_user }}"
   name: 'Install Ruby&Rails environment'
 
   tasks:
@@ -8,6 +12,7 @@
     - name: 'Update repositories cache'
       apt:
         update_cache: yes
+      become: true
 
     - name: 'Install prerequisites packages'
       apt:
@@ -25,15 +30,17 @@
           - libgdbm-dev 
           - git
         state: present
+      become: true
+
 
     - name: 'Clone rbenv repository'
       git:
         repo: https://github.com/rbenv/rbenv.git
-        dest: ~/.rbenv
+        dest: /home/{{ ansible_user }}/.rbenv
 
     - name: 'Add rbenv config un bashrc'
       blockinfile:
-        path: ~/.bashrc
+        path: /home/{{ ansible_user }}/.bashrc
         block: |
           export PATH="$HOME/.rbenv/bin:$PATH"
           eval "$(rbenv init -)"
@@ -44,14 +51,14 @@
     - name: 'Clone ruby-build repo'
       git:
         repo: https://github.com/rbenv/ruby-build.git
-        dest: ~/.rbenv/plugins/ruby-build
+        dest: /home/{{ ansible_user }}/.rbenv/plugins/ruby-build
 
     - name: 'Install ruby'
-      remote_user: "{{ ansible_user }}"
       rbenv:
+        subcommand: install
         version: 2.5.3
-        rbenv_root: /home/{{ ansible_user }}/.rbenv
-
+        rbenv_root: "{{ rbenv_root }}"
+        
     - name: 'Set global version for rbenv'
       remote_user: "{{ ansible_user }}"
       rbenv:
@@ -59,15 +66,17 @@
         version: 2.5.3
         rbenv_root: /home/{{ ansible_user }}/.rbenv
 
+    - name: 'Add rbinstall alias'
+      shell: alias rbinstall='rbenv local $(cat .ruby-version) || rbenv install $(cat .ruby-version) && rbenv local $(cat .ruby-version)'
+      
+    - name: 'Configure gem'
+      lineinfile:
+        path: /home/{{ ansible_user }}/.gemrc
+        line: 'gem: --no-document'
+        create: yes
+
     - name: 'Install bundler'
-      gem:
-        name: bundler
-        state: present
-        executable: /home/{{ ansible_user }}/.rbenv/shims/gem
-      # become: yes
+      shell: gem install bundler
 
     - name: 'Install rails'
-      gem:
-        name: rails
-        version: 5.2.0
-        state: present
+      shell: gem install rails

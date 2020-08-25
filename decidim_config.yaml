@@ -1,0 +1,105 @@
+---
+- name: 'Ubuntu pre-config'
+  import_playbook: default_config.yaml
+
+- name: 'Ruby&Rails'
+  import_playbook: rails_config.yaml
+
+- name: 'Nginx'
+  import_playbook: webserver_nginx_config.yaml
+
+- name: 'Postgresql'
+  import_playbook: database_psql_config.yaml
+
+- hosts: decidim_grp
+  name: 'Deploy Decidim'
+
+  tasks: 
+
+    - name: 'Install Decidim dependencies packages'
+      apt:
+        name:
+          - libpq-dev
+          - nodejs 
+          - imagemagick 
+          - libicu-dev
+      become: true
+
+    - name: 'Install Passenger dependencies packages'
+      apt:
+          name:
+            - dirmngr
+            - gnupg 
+      become: true
+
+    - name: 'Add Passenger repository key'
+      apt_key: keyserver=keyserver.ubuntu.com id=561F9B9CAC40B2F7
+      become: true
+
+    - name: 'Add Passenger apt repository'
+      apt_repository: repo='deb https://oss-binaries.phusionpassenger.com/apt/passenger bionic main'
+      become: true
+
+    - name: 'Install Passenger'
+      apt: name=libnginx-mod-http-passenger state=latest
+      become: true
+
+    - name: 'Add Passenger configuration to Nginx'
+      copy:
+        dest: '/etc/nginx/conf.d/mod-http-passenger.conf'
+        content: |
+          passenger_root /usr/lib/ruby/vendor_ruby/phusion_passenger/locations.ini;
+          passenger_ruby /home/decidim/.rbenv/shims/ruby;
+      become: true
+
+    - name: 'Restart Nginx service'
+      service:
+        name: nginx
+        state: restarted
+      become: true
+
+    - name: 'Clone Decidim repository'
+      git:
+        repo: https://github.com/MoretS/decidim
+        dest: /home/{{ ansible_user }}/decidim
+        version: develop
+
+    - name: 'Run bundle install from decidim'
+      bundler:
+        state: present
+        gemfile: /home/{{ ansible_user }}/decidim
+
+    - name: 'Generate Decidim app'
+      shell: bundle exec rake development_app /home/{{ ansible_user }}/decidim_app
+      args:
+        chdir: /home/{{ ansible_user }}/decidim
+
+    - name: 'Install and select ruby version from .ruby-version file'
+      shell: rbinstall
+      args:
+        chdir: /home/{{ ansible_user }}/decidim_app 
+
+    - name: 'Run bundle install from decidim_app'
+      shell: bundle install
+      args:
+        chdir: /home/{{ ansible_user }}/decidim_app
+
+    - name: 'Create database'
+      shell: bundle exec rake db:create
+      args:
+        chdir: /home/{{ ansible_user }}/decidim_app
+
+    - name: 'Run migrations'
+      shell: bundle exec rake db:migrate
+      args:
+        chdir: /home/{{ ansible_user }}/decidim_app
+
+    - name: 'Generate seeds for decidim_app'
+      shell: bundle exec rake db:seed
+      args:
+        chdir: /home/{{ ansible_user }}/decidim_app
+
+
+  
+
+    

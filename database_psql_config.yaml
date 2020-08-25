@@ -1,0 +1,35 @@
+---
+- hosts: webservers
+  become: true
+  name: 'Install and configure Postgresql'
+
+  tasks:
+
+    - name: 'Add PGAdmin key'
+      apt_key:
+        url: https://www.postgresql.org/media/keys/ACCC4CF8.asc
+        state: present
+
+    - name: 'Create pgdg.list file'
+      copy:
+        dest: "/etc/apt/sources.list.d/pgdg.list"
+        content: |
+          deb http://apt.postgresql.org/pub/repos/apt/ bionic-pgdg main
+
+    - name: 'Update repositories cache'
+      apt:
+        update_cache: yes
+
+    - name: 'Install Postgresql'
+      apt:
+        pkg:
+        - postgresql-11
+        - pgadmin4
+
+    - name: 'Create psql user'
+      shell: sudo -u postgres createuser --interactive --no-createrole --superuser --createdb {{ ansible_user }}
+      ignore_errors: yes
+
+    - name: 'Create psql database'
+      shell: sudo -u postgres createdb {{ ansible_user }}
+      ignore_errors: yes
