@@ -45,9 +45,6 @@
           export PATH="$HOME/.rbenv/bin:$PATH"
           eval "$(rbenv init -)"
 
-    - name: 'Source bashrc'
-      shell: . /home/{{ ansible_user }}/.bashrc
-
     - name: 'Clone ruby-build repo'
       git:
         repo: https://github.com/rbenv/ruby-build.git
@@ -67,7 +64,12 @@
         rbenv_root: /home/{{ ansible_user }}/.rbenv
 
     - name: 'Add rbinstall alias'
-      shell: alias rbinstall='rbenv local $(cat .ruby-version) || rbenv install $(cat .ruby-version) && rbenv local $(cat .ruby-version)'
+      lineinfile:
+        path: /home/{{ ansible_user }}/.bashrc
+        line: alias rbinstall='rbenv local $(cat .ruby-version) || rbenv install $(cat .ruby-version) && rbenv local $(cat .ruby-version)'
+
+    - name: 'Source bashrc'
+      shell: . /home/{{ ansible_user }}/.bashrc
       
     - name: 'Configure gem'
       lineinfile:
