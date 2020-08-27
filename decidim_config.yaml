@@ -52,6 +52,9 @@
           passenger_ruby /home/{{ ansible_user }}/.rbenv/shims/ruby;
       become: true
 
+    #Todo 
+      # Install Sidekiq as service
+
     - name: 'Add Decidim config to Nginx'
       blockinfile:
         path: /etc/nginx/sites-available/decidim-cfg
@@ -88,3 +91,13 @@
         repo: https://github.com/MoretS/decidim
         dest: /home/{{ ansible_user }}/decidim
         version: develop
+
+    #Todo 
+      # Create script to execute end of the process 
+        # - bundle install
+        # - bundle exec rails db:create
+        # - bundle exec rails db:migrate
+        # - bundle exec rails db:seed
+        # - Change host in database
+        # - Precompile assets
+        # - Restart nginx 
