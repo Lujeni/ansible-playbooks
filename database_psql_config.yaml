@@ -33,3 +33,6 @@
     - name: 'Create psql database'
       shell: sudo -u postgres createdb {{ ansible_user }}
       ignore_errors: yes
+
+  #Todo 
+    # Task to modify pg_hba.conf

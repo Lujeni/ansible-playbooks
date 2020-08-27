@@ -38,7 +38,7 @@
         repo: https://github.com/rbenv/rbenv.git
         dest: /home/{{ ansible_user }}/.rbenv
 
-    - name: 'Add rbenv config un bashrc'
+    - name: 'Add rbenv config in bashrc'
       blockinfile:
         path: /home/{{ ansible_user }}/.bashrc
         block: |
