@@ -49,7 +49,32 @@
         dest: '/etc/nginx/conf.d/mod-http-passenger.conf'
         content: |
           passenger_root /usr/lib/ruby/vendor_ruby/phusion_passenger/locations.ini;
-          passenger_ruby /home/decidim/.rbenv/shims/ruby;
+          passenger_ruby /home/{{ ansible_user }}/.rbenv/shims/ruby;
+      become: true
+
+    - name: 'Add Decidim config to Nginx'
+      blockinfile:
+        path: /etc/nginx/sites-available/decidim-cfg
+        create: yes
+        block: |
+          server {
+            listen 80;
+            listen [::]:80;
+
+            server_name {{ ansible_hostname }}.{{ domain }};
+            client_max_body_size 32M;
+
+            passenger_enabled on;
+
+            rails_env    production;
+            root         /home/{{ ansible_user }}/decidim-app/public;
+          }
+      become: true
+
+    - name: 'Enable Nginx config'
+      shell: ln -s /etc/nginx/sites-available/decidim-cfg /etc/nginx/sites-enabled/
+      args:
+        chdir: /etc/nginx/sites-enabled
       become: true
 
     - name: 'Restart Nginx service'
@@ -63,43 +88,3 @@
         repo: https://github.com/MoretS/decidim
         dest: /home/{{ ansible_user }}/decidim
         version: develop
-
-    - name: 'Run bundle install from decidim'
-      bundler:
-        state: present
-        gemfile: /home/{{ ansible_user }}/decidim
-
-    - name: 'Generate Decidim app'
-      shell: bundle exec rake development_app /home/{{ ansible_user }}/decidim_app
-      args:
-        chdir: /home/{{ ansible_user }}/decidim
-
-    - name: 'Install and select ruby version from .ruby-version file'
-      shell: rbinstall
-      args:
-        chdir: /home/{{ ansible_user }}/decidim_app 
-
-    - name: 'Run bundle install from decidim_app'
-      shell: bundle install
-      args:
-        chdir: /home/{{ ansible_user }}/decidim_app
-
-    - name: 'Create database'
-      shell: bundle exec rake db:create
-      args:
-        chdir: /home/{{ ansible_user }}/decidim_app
-
-    - name: 'Run migrations'
-      shell: bundle exec rake db:migrate
-      args:
-        chdir: /home/{{ ansible_user }}/decidim_app
-
-    - name: 'Generate seeds for decidim_app'
-      shell: bundle exec rake db:seed
-      args:
-        chdir: /home/{{ ansible_user }}/decidim_app
-
-
-  
-
-    
