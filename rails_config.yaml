@@ -67,18 +67,9 @@
       lineinfile:
         path: /home/{{ ansible_user }}/.bashrc
         line: alias rbinstall='rbenv local $(cat .ruby-version) || rbenv install $(cat .ruby-version) && rbenv local $(cat .ruby-version)'
-
-    - name: 'Source bashrc'
-      shell: . /home/{{ ansible_user }}/.bashrc
       
     - name: 'Configure gem'
       lineinfile:
         path: /home/{{ ansible_user }}/.gemrc
         line: 'gem: --no-document'
         create: yes
-
-    - name: 'Install bundler'
-      shell: gem install bundler
-
-    - name: 'Install rails'
-      shell: gem install rails
