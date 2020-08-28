@@ -23,6 +23,7 @@
           - nodejs 
           - imagemagick 
           - libicu-dev
+          # Install yarn
       become: true
 
     - name: 'Install Passenger dependencies packages'
@@ -54,6 +55,7 @@
 
     #Todo 
       # Install Sidekiq as service
+      # Install Redis
 
     - name: 'Add Decidim config to Nginx'
       blockinfile:
@@ -101,3 +103,5 @@
         # - Change host in database
         # - Precompile assets
         # - Restart nginx 
+
+        # Utiliser des templates au niveau des fichier a créer et à modifier 
