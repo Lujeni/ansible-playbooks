@@ -1,0 +1,4 @@
+- name: configure | start Nginx service
+  service:
+    name: nginx
+    state: started

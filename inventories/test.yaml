@@ -1,0 +1,28 @@
+# hosts
+[server1]
+server1 ansible_host=10.6.19.21
+
+[server2]
+server2
+
+[server3]
+server3
+
+# groups
+[scaleway_webserver:children]
+server1
+#server2
+
+[scaleway_database:children]
+server3
+
+[scaleway:children]
+scaleway_webserver
+scaleway_database
+
+# geo
+[webserver:children]
+scaleway_webserver
+
+[database:children]
+scaleway_database

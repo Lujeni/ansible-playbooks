@@ -1,0 +1,4 @@
+- name: install | update apt
+  apt:
+    update_cache: yes
+    upgrade: yes

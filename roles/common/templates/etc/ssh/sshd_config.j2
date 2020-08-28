@@ -1,0 +1,21 @@
+# {{ ansible_managed }}
+Port {{ common_ssh_port }}
+Protocol 2
+
+SyslogFacility AUTH
+LogLevel INFO
+
+PermitRootLogin {{ common_ssh_permit_root_login }}
+PermitEmptyPasswords no
+
+PasswordAuthentication no
+ChallengeResponseAuthentication no
+UsePAM yes
+
+PubkeyAuthentication yes
+AuthorizedKeysFile  %h/.ssh/authorized_keys
+
+PrintMotd no
+PrintLastLog no
+
+AcceptEnv LANG LC_

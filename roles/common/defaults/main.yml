@@ -1,0 +1,4 @@
+---
+common_ssh_port: 22
+
+common_ssh_permit_root_login: no
